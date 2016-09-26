@@ -33,11 +33,11 @@
 #include <stdbool.h>
 
 typedef struct {
-	char const *cmd;
-	void (*handler)(uint32_t argc, char *argv[]);
-	uint32_t min_arg, max_arg;
-	char const *help;
-	char const *usage;
+    char const *cmd;
+    void (*handler)(uint32_t argc, char *argv[]);
+    uint32_t min_arg, max_arg;
+    char const *help;
+    char const *usage;
 } command_t;
 
 void cli_run(const command_t cmds[], const uint32_t num, const char *app_name);

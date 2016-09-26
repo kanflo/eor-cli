@@ -121,61 +121,60 @@ void cli_run(const command_t cmds[], const uint32_t num, const char *app_name)
     }
 
     if (app_name) {
-	    printf("\nWelcome to %s!", app_name);
-	} else {
-	    printf("\nWelcome!");
-	}
+        printf("\nWelcome to %s!", app_name);
+    } else {
+        printf("\nWelcome!");
+    }
     printf(" Enter 'help' for available commands.\n\n");
 
     while (true) {
-    	bool found_cmd = false;
+        bool found_cmd = false;
         printf("%s ", PROMPT_STR);
         len = cli_readline(cmd_buffer, CMD_BUF_SIZE, true);
         if (!len) continue;
-	    // Split string "<command> <argument 1> <argument 2>  ...  <argument N>"
-		// into argc, argv style
-	    char *argv[MAX_ARGC];
-	    int argc = 1;
-	    char *temp, *rover;
-	    memset((void*) argv, 0, sizeof(argv));
-	    argv[0] = cmd_buffer;
-	    rover = cmd_buffer;
-		while(argc < MAX_ARGC && (temp = strstr(rover, ARG_DELIMITER_STR))) { // @todo: fix for multiple delimiters
-    		rover = &(temp[1]);
-    		argv[argc++] = rover;
-    		*temp = 0;
-		}
+        // Split string "<command> <argument 1> <argument 2>  ...  <argument N>"
+        // into argc, argv style
+        char *argv[MAX_ARGC];
+        int argc = 1;
+        char *temp, *rover;
+        memset((void*) argv, 0, sizeof(argv));
+        argv[0] = cmd_buffer;
+        rover = cmd_buffer;
+        while(argc < MAX_ARGC && (temp = strstr(rover, ARG_DELIMITER_STR))) { // @todo: fix for multiple delimiters
+            argv[argc++] = rover;
+            *temp = 0;
+        }
         for (int i=0; i<num; i++) {
             if (cmds[i].cmd && strcmp(argv[0], cmds[i].cmd) == 0) {
-            	if (cmds[i].min_arg > argc-1 || cmds[i].max_arg < argc-1) {
-			        printf("Wrong number of arguments %d (%d..%d).\n", argc-1, cmds[i].min_arg, cmds[i].max_arg);
-			        if (cmds[i].usage) {
-			        	printf("Usage: %s%s%s\n", cmds[i].cmd, ARG_DELIMITER_STR, cmds[i].usage);
-			        }
-        		} else {
-	            	cmds[i].handler(argc, argv);
-        		}
-            	found_cmd = true;
+                if (cmds[i].min_arg > argc-1 || cmds[i].max_arg < argc-1) {
+                    printf("Wrong number of arguments %d (%d..%d).\n", argc-1, cmds[i].min_arg, cmds[i].max_arg);
+                    if (cmds[i].usage) {
+                        printf("Usage: %s%s%s\n", cmds[i].cmd, ARG_DELIMITER_STR, cmds[i].usage);
+                    }
+                } else {
+                    cmds[i].handler(argc, argv);
+                }
+                found_cmd = true;
             }
         }
 
         if (!found_cmd) {
-        	if (strcmp(argv[0], "help") == 0) {
-        		uint32_t max_len = 0;
-        		// Make sure command list is nicely padded
-		        for (int i=0; i<num; i++) {
-		            if (cmds[i].help && max_len < strlen(cmds[i].cmd)) {
-		            	max_len = strlen(cmds[i].cmd);
-		            }
-		        }
-		        for (int i=0; i<num; i++) {
-		            if (cmds[i].help) {
-		            	printf("%-*s %s\n", max_len+CMD_EXTRA_PADDING, cmds[i].cmd, cmds[i].help);
-		            }
-		        }
-    		} else {
-	        	printf("Unknown command\n");
-    		}
+            if (strcmp(argv[0], "help") == 0) {
+                uint32_t max_len = 0;
+                // Make sure command list is nicely padded
+                for (int i=0; i<num; i++) {
+                    if (cmds[i].help && max_len < strlen(cmds[i].cmd)) {
+                        max_len = strlen(cmds[i].cmd);
+                    }
+                }
+                for (int i=0; i<num; i++) {
+                    if (cmds[i].help) {
+                        printf("%-*s %s\n", max_len+CMD_EXTRA_PADDING, cmds[i].cmd, cmds[i].help);
+                    }
+                }
+            } else {
+                printf("Unknown command\n");
+            }
         }
     }
 
